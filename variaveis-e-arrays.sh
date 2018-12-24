@@ -32,6 +32,7 @@ function arrays {
   #   - declare -a array Para array associativos
   #   - declare -A array Para array indexado
   # - Para inicializar um array: array=(elem1 elem2 ... elemN)
+  # - Para recuperar os indícies ou chaves de um array indexado/associativo, utiliza-se: ${!array[@]} ou ${!array[*]}
 
   echo "Array são declarados das seguintes formas:"
   echo "Para arrays indexados:"
