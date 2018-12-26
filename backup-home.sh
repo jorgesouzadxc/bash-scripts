@@ -2,23 +2,35 @@
 
 main() {
 
+  home_dir="/home/$(whoami)"
+  backup_dir="/home/backup"
+  log_dir="${backup_dir}/logs"
+
+  time_stamp=$(date +"%d-%m-%Y-%H-%M-%S")
+  file_name="$(whoami)-${time_stamp}.tar.gz"
+  log_file="backup-$(whoami)-${file_name%%.*}.log"
+  temp_log_dir="/home/backup"
+
+  init "$home_dir" "$backup_dir" "$log_dir"
+
   log
   log "Inicio"
 
-  compactacao
+  compactacao "$home_dir" "$file_name" "$backup_dir"
 
   log "Fim"
   log
 
+  mv "${temp_log_dir}/temp.log" "${log_dir}/$log_file"
+
 }
 
-compactacao() {
+init() {
 
   home_dir="/home/$(whoami)"
-  file_name="$(whoami).tar.gz"
   backup_dir="/home/backup"
+  log_dir="${backup_dir}/logs"
 
-  echo "Home dir $home_dir"
   if [ ! -d "$home_dir" ]
   then
     log "Não há diretório home"
@@ -38,17 +50,43 @@ compactacao() {
     fi
   fi
 
-  if cd "$backup_dir"
+  if [ ! -d "$log_dir" ]
   then
-    log "Caminho atual mudado para $backup_dir"
-  else
-    log "Não conseguiu acessar o diretório"
+    log "Criando diretório de log"
+    mkdir "$log_dir"
+    if [ "$?" == "0" ]
+    then
+      log "Diretório $log_dir criado com sucesso"
+    else
+      log "Diretório $log_dir não criado com sucesso"
+      exit 1
+    fi
+  fi
+
+  touch "${log_dir}/${log_file}"
+  if [ "$?" != "0" ]
+  then
+    echo log "Não conseguiu criar arquivo de log em ${log_dir}/${log_file}"
+  fi
+
+}
+
+compactacao() {
+
+  home_dir="$1"
+  file_name="$2"
+  backup_dir="$3"
+
+  cd "$backup_dir"
+  if [ "$?" != "0" ]
+  then
+    log "Não conseguiu acessar o diretório de backup"
     exit 1
   fi
 
-
-  tar -pcvzf "$file_name" "$home_dir"
-  if [ "$?" == 0 ]
+  log "Início do processo de compactação"
+  tar -pcvzf "$file_name" "$home_dir" &> /dev/null
+  if [ "$?" == "0" ]
   then
      log "Arquivo ${backup_dir}/${file_name} criado com sucesso!"
   else
@@ -60,11 +98,17 @@ compactacao() {
 
 log() {
 
+  temp_log="/home/backup/temp.log"
+
   if [ -z "$1" ]
   then
-    echo "---------------------"
+    msg="===================="
+    echo "$msg"
+    echo "$msg" >> "$temp_log"
   else
-    echo "[LOG] $1"
+    msg="[LOG] $1"
+    echo "$msg"
+    echo "$msg" >> "$temp_log"
   fi
 
 }

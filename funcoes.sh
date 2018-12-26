@@ -43,6 +43,17 @@ arrays() {
 
 }
 
+funcao_com_retorno() {
+
+  if [ -z $1 ]
+  then
+    return 1
+  else
+    return 0
+  fi
+
+}
+
 main() {
 
   var1="v1"
@@ -52,6 +63,15 @@ main() {
 
   variaveis "${var1}" "${var2}" "${var3}"
   arrays "${array[@]}"
+
+  if funcao_com_retorno
+  then
+    echo "Funcionou!"
+  else
+    echo "Não funcionou"
+  fi
+
+  funcao_com_retorno && echo "Funcionou" || echo "Não funcionou"
 
 }
 
