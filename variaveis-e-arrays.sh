@@ -3,6 +3,8 @@ echo "Variáveis e arrays"
 echo $'\n\n'
 
 function variaveis {
+# Expansão de parâmetros
+#   - ${!prefixo*} printa todas as variáveis que começam com o prefixo
 
   echo "Declaração de variáveis"
   var1="Hello World"
