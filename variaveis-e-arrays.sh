@@ -1,10 +1,17 @@
 #!/bin/bash
-echo "Variáveis e arrays"
-echo $'\n\n'
 
 function variaveis {
 # Expansão de parâmetros
 #   - ${!prefixo*} printa todas as variáveis que começam com o prefixo
+#   - ${var:-valorpadrao} usa o valor da variavel para o valor padrao, caso ele seja vazio
+#   - ${var:=valorpadrao} seta o valor da variavel para o valor padrao, caso ele não tenha sido setado
+#   - ${var:?msg_err} se existir valor na variavel, usa-a, caso contrário, printa uma mensagem de erro
+
+
+  declare varn
+  echo ${varn:-"teste de teste"}
+  varn="varlo de var n"
+  echo "Valor: ${varn:-valor}"
 
   echo "Declaração de variáveis"
   var1="Hello World"
