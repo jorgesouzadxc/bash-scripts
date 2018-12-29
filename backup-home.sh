@@ -27,9 +27,9 @@ main() {
 
 init() {
 
-  home_dir="/home/$(whoami)"
-  backup_dir="/home/backup"
-  log_dir="${backup_dir}/logs"
+  home_dir=$1
+  backup_dir=$2
+  log_dir=$3
 
   if [ ! -d "$home_dir" ]
   then
@@ -39,28 +39,49 @@ init() {
 
   if [ ! -d "$backup_dir" ]
   then
+
+    logerr "Diretório de backup não existe"
+    log "Checando permissões para criação do diretório de backup"
+
+    if [ ! -w "$backup_dir"]
+    then
+      logerr "Usuário $(whoami) não possui privilégio de escrita no diretório $home_dir"
+      exit 1
+    fi
+
     log "Criando diretório de backup"
     mkdir "$backup_dir"
+
     if [ "$?" == "0" ]
     then
       log "Diretório $backup_dir criado com sucesso"
     else
-      log "Diretório $backup_dir não criado com sucesso"
+      logerr "Diretório $backup_dir não criado com sucesso"
       exit 1
     fi
+
   fi
 
   if [ ! -d "$log_dir" ]
   then
+
     log "Criando diretório de log"
-    mkdir "$log_dir"
-    if [ "$?" == "0" ]
+    if [ -w "$log_dir"]
     then
-      log "Diretório $log_dir criado com sucesso"
+      mkdir "$log_dir"
+
+      if [ "$?" == "0" ]
+      then
+        log "Diretório $log_dir criado com sucesso"
+      else
+        logerr "Erro ao criar diretório $log_dir"
+        exit 1
+      fi
     else
-      log "Diretório $log_dir não criado com sucesso"
+      logerr "Não conseguiu criar diretório de logs"
       exit 1
     fi
+
   fi
 
   touch "${log_dir}/${log_file}"
@@ -107,6 +128,23 @@ log() {
     echo "$msg" >> "$temp_log"
   else
     msg="[LOG] $1"
+    echo "$msg"
+    echo "$msg" >> "$temp_log"
+  fi
+
+}
+
+logerr() {
+
+  temp_log="/home/backup/temp.log"
+
+  if [ -z "$1" ]
+  then
+    msg="===================="
+    echo "$msg"
+    echo "$msg" >> "$temp_log"
+  else
+    msg="[ERR] $1"
     echo "$msg"
     echo "$msg" >> "$temp_log"
   fi
