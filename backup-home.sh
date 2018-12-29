@@ -9,19 +9,26 @@ main() {
   time_stamp=$(date +"%d-%m-%Y-%H-%M-%S")
   file_name="$(whoami)-${time_stamp}.tar.gz"
   log_file="backup-$(whoami)-${file_name%%.*}.log"
-  temp_log_dir="/home/backup"
-
-  init "$home_dir" "$backup_dir" "$log_dir"
 
   log
   log "Inicio"
 
+  init "$home_dir" "$backup_dir" "$log_dir"
   compactacao "$home_dir" "$file_name" "$backup_dir"
 
   log "Fim"
+
+  log "Movendo arquivo de log temporário para a pasta de log"
   log
 
-  mv "${temp_log_dir}/temp.log" "${log_dir}/$log_file"
+  mv "${home_dir}/temp.log" "${log_dir}/$log_file"
+
+  if [ $? != "0" ]
+  then
+    logerr "Não conseguiu renomear arquivo de log"
+    log "Deletando arquivo temporário de log (log não salvo)"
+    rm "${home_dir}/temp.log"
+  fi
 
 }
 
@@ -43,9 +50,9 @@ init() {
     logerr "Diretório de backup não existe"
     log "Checando permissões para criação do diretório de backup"
 
-    if [ ! -w "$backup_dir"]
+    if [ ! -w "/home" ]
     then
-      logerr "Usuário $(whoami) não possui privilégio de escrita no diretório $home_dir"
+      logerr "Usuário $(whoami) não possui privilégio de escrita no diretório /home"
       exit 1
     fi
 
@@ -66,7 +73,7 @@ init() {
   then
 
     log "Criando diretório de log"
-    if [ -w "$log_dir"]
+    if [ -w "$backup_dir" ]
     then
       mkdir "$log_dir"
 
@@ -97,6 +104,7 @@ compactacao() {
   home_dir="$1"
   file_name="$2"
   backup_dir="$3"
+  temp_log_dir=$1
 
   cd "$backup_dir"
   if [ "$?" != "0" ]
@@ -106,6 +114,7 @@ compactacao() {
   fi
 
   log "Início do processo de compactação"
+  echo "$temp_log_dir/temp.log"
   tar -pcvzf "$file_name" "$home_dir" &> /dev/null
   if [ "$?" == "0" ]
   then
@@ -119,7 +128,11 @@ compactacao() {
 
 log() {
 
-  temp_log="/home/backup/temp.log"
+  temp_log="/home/$(whoami)/temp.log"
+  if [ ! -f "$temp_log" ]
+  then
+    touch "$temp_log"
+  fi
 
   if [ -z "$1" ]
   then
@@ -136,7 +149,11 @@ log() {
 
 logerr() {
 
-  temp_log="/home/backup/temp.log"
+  temp_log="/home/$(whoami)/temp.log"
+  if [ ! -f $temp_log ]
+  then
+    touch $temp_log
+  fi
 
   if [ -z "$1" ]
   then
