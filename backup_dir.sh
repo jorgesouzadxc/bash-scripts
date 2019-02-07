@@ -148,7 +148,7 @@ main() {
         return 1
     fi
 
-    if [ $(whoami) != "root" ]
+    if [ $EUID != 0 ]
     then
         echo "Este escript precisa ser executado com privilégios de root"
         return 1
