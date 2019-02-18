@@ -147,7 +147,11 @@ main() {
         return 1
     fi
 
+<<<<<<< HEAD
     if [ "$EUID" -ne 0 ]
+=======
+    if [ $EUID != 0 ]
+>>>>>>> be6b5c10d53f817f3d50cbdc860cf5c44b16e84e
     then
         echo "Este escript precisa ser executado com privilégios de root"
         return 1
