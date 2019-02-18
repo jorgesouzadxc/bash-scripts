@@ -110,8 +110,6 @@ print_log_errors() {
 				echo "$error"
 			fi
 		done
-	else
-		echo "Nao houveram erros."
 	fi
 
 }
