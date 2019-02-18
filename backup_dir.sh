@@ -109,11 +109,10 @@ compact() {
     fi
 
     tar -pcvzf "$fn_backup" "$dir"
-    if [ $? == 0 ]
+    if [ "$?" == "0" ]
     then
         log "Arquivo ${fn_backup} gerado com sucesso"
     elif [ $? != 0 ] && [ -f "${dir_current}/${fn_backup}" ]
-
     then
         log "Arquivo ${fn_backup} gerado com sucesso, mas com falhas."
     else
@@ -148,7 +147,7 @@ main() {
         return 1
     fi
 
-    if [ $(whoami) != "root" ]
+    if [ "$EUID" -ne 0 ]
     then
         echo "Este escript precisa ser executado com privilégios de root"
         return 1
